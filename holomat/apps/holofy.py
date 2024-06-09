@@ -5,11 +5,19 @@ import sys
 import time
 import subprocess
 import os
+from dotenv import find_dotenv, load_dotenv, set_key
+
+# Load .env file
+dotenv_path = find_dotenv()
+if not dotenv_path:
+    print("Error: .env file not found")
+    exit(1)
+load_dotenv(dotenv_path,override=True)
 
 # Spotify API credentials
-CLIENT_ID = '0ca0a12c12d74ab5ba99b278c8d78713'
-CLIENT_SECRET = 'd6601dec5adf4068b88d51bd11e03dc1'
-REDIRECT_URI = 'http://localhost:8888/callback'
+CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
+CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
+REDIRECT_URI = os.getenv("SPOTIFY_REDIRECT_URI")
 
 scope = "user-read-playback-state,user-modify-playback-state,playlist-read-private"
 
