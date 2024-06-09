@@ -18,5 +18,7 @@ jarvis.db
 
 # Holomat
 scans/
+
+# Spotipy
 .cache
 *.cache
