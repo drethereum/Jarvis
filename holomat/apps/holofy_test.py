@@ -7,14 +7,14 @@ screen_width, screen_height = 1440, 720
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Holofy Music Player")
 
-# load images
+# Load images
 background_img = pygame.image.load('holomat/resources/spotify/banner.png')
 play_button_img = pygame.image.load('holomat/resources/spotify/play.png')
 pause_button_img = pygame.image.load('holomat/resources/spotify/pause.png')
 prev_button_img = pygame.image.load('holomat/resources/spotify/previous.png')
 skip_button_img = pygame.image.load('holomat/resources/spotify/skip.png')
 
-# scale images
+# Scale images
 background = pygame.transform.smoothscale(background_img, (screen_width, screen_height))
 
 button_scale = 0.5
@@ -27,7 +27,7 @@ prev_button = pygame.transform.smoothscale(prev_button_img, (int(prev_button_wid
 skip_button_width, skip_button_height = skip_button_img.get_size()
 skip_button = pygame.transform.smoothscale(skip_button_img, (int(skip_button_width * button_scale), int(skip_button_height * button_scale)))
 
-# position images
+# Position images
 background_rect = background.get_rect(center=screen.get_rect().center)
 
 play_button_rect = play_button.get_rect()
