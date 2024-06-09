@@ -16,7 +16,7 @@ LIGHT_BLUE = (173, 216, 230)
 WHITE = (255, 255, 255)
 NAVY_BLUE = (20, 20, 40)
 PIXEL_TO_MM = 0.4478  # Adjust this variable as needed
-PINCH_RELEASE_DISTANCE = 60  # Distance to release the pinch
+PINCH_RELEASE_DISTANCE = 150  # Distance to release the pinch
 PINCH_HOLD_TIME = 0.2  # Minimum time to hold the pinch before releasing
 
 def distance(p1, p2):
@@ -77,7 +77,7 @@ def run(screen, camera_manager):
                 pygame.draw.circle(screen, WHITE, index_pos, 5)
 
                 distance_between_fingers = distance(thumb_pos, index_pos)
-                if distance_between_fingers < 50:  # Threshold for starting a pinch
+                if distance_between_fingers < 100:  # Threshold for starting a pinch
                     pygame.draw.circle(screen, WHITE, mid_point, 10)
                     if not drawing:
                         play_sound('holomat/audio/quick_click.wav')
