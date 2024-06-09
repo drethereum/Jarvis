@@ -18,3 +18,5 @@ jarvis.db
 
 # Holomat
 scans/
+.cache
+*.cache
