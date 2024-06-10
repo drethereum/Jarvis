@@ -33,7 +33,7 @@ screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Holofy Music Player")
 
 # Load font
-font = pygame.font.Font(None, 36)
+font = pygame.font.Font(None, 64)
 white =  (255, 255, 255)
 
 # Load images
@@ -91,13 +91,10 @@ def get_active_device():
 
 def open_spotify_app():
     try:
-        if sys.platform == "win32":  # Windows
-            # Check if Spotify is already open
-            result = subprocess.run(["tasklist", "/FI", "IMAGENAME eq Spotify.exe"], capture_output=True, text=True)
-            if "Spotify.exe" in result.stdout:  # If Spotify is already running, tasklist returns a string containing "Spotify.exe"
-                print("Spotify is already open.")
-                return True
-            os.system("start spotify")  # specify path to Spotify.exe if necessary
+        if sys.platform == "darwin":  # macOS
+            subprocess.run(["open", "-a", "Spotify"])
+        elif sys.platform == "win32":  # Windows
+            os.system("start spotify") # specify path to Spotify.exe if necessary
         time.sleep(5)  # Give Spotify some time to open
         return True
     except Exception as e:
