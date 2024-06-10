@@ -1,11 +1,39 @@
 import pygame
 import sys
+import time
+import subprocess
+import os
+import spotipy
+from spotipy.oauth2 import SpotifyOAuth
+from dotenv import find_dotenv, load_dotenv, set_key
+
+# Load .env file
+dotenv_path = find_dotenv()
+if not dotenv_path:
+    print("Error: .env file not found")
+    exit(1)
+load_dotenv(dotenv_path,override=True)
+
+# Spotify API credentials
+CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
+CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
+REDIRECT_URI = os.getenv("SPOTIFY_REDIRECT_URI")
+
+scope = "user-read-playback-state,user-modify-playback-state,playlist-read-private"
+
+sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=CLIENT_ID,
+                                               client_secret=CLIENT_SECRET,
+                                               redirect_uri=REDIRECT_URI,
+                                               scope=scope))
 
 pygame.init()
 
 screen_width, screen_height = 1440, 720
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Holofy Music Player")
+
+# Load font
+font = pygame.font.Font(None, 36)
 
 # Load images
 background_img = pygame.image.load('holomat/resources/spotify/banner.png')
@@ -47,11 +75,74 @@ play_button_rect.topleft = (prev_button_rect.topright[0] + button_spacing, butto
 pause_button_rect.topleft = (play_button_rect.topright[0] + button_spacing, button_pos_y)
 skip_button_rect.topleft = (pause_button_rect.topright[0] + button_spacing, button_pos_y)
 
-play_button_pos = play_button_rect.topleft
-pause_button_pos = pause_button_rect.topleft
-prev_button_pos = prev_button_rect.topleft
-skip_button_pos = skip_button_rect.topleft
+def get_active_device():
+    devices = sp.devices()['devices']
+    if not devices:
+        print('No devices found. Defaulting...')
+        return None
 
+    for device in devices:
+        if device['is_active']:
+            print(device['id'])
+            return device['id']
+    
+    return devices[0]['id'] # If no active device is found, return the first available device
+
+def open_spotify_app():
+    try:
+        if sys.platform == "darwin":  # macOS
+            subprocess.run(["open", "-a", "Spotify"])
+        elif sys.platform == "win32":  # Windows
+            os.system("start spotify") # specify path to Spotify.exe if necessary
+        time.sleep(5)  # Give Spotify some time to open
+        return True
+    except Exception as e:
+        print(f"Failed to open Spotify app: {e}")
+        return False
+    
+def close_spotify_app():
+    try:
+        if sys.platform == "darwin":  # macOS
+            subprocess.run(["pkill", "Spotify"])
+        elif sys.platform == "win32":  # Windows
+            os.system("taskkill /f /im Spotify.exe")
+        time.sleep(1)  # Give some time to close the process
+        return True
+    except Exception as e:
+        print(f"Failed to close Spotify app: {e}")
+        return False
+
+def play_song(song_uri):
+    device_id = spotify_device_id
+    if device_id:
+        sp.start_playback(device_id=device_id, uris=[song_uri])
+
+def pause_song():
+    device_id = spotify_device_id
+    if device_id:
+        sp.pause_playback(device_id=device_id)
+
+def prev_song():
+    device_id = spotify_device_id
+    if device_id:
+        sp.previous_track(device_id=device_id)
+
+def skip_song():
+    device_id = spotify_device_id
+    if device_id:
+        sp.skip_track(device_id=device_id)
+
+def get_playlist_tracks(playlist_id):
+    results = sp.playlist_tracks(playlist_id)
+    return results['items']
+
+open_spotify_app()
+spotify_device_id = get_active_device()
+
+# Spotify Track Selection
+playlist_id = '2JRXnerNyzSs7W7eOpYvU3'
+tracks = get_playlist_tracks(playlist_id)
+track_index = 0
 
 running = True
 
@@ -59,14 +150,33 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+            print("Spotify Application Closed")
+            close_spotify_app()
             print("Holofy Application Closed")
             pygame.quit()
             sys.exit()
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if play_button_rect.collidepoint(event.pos):
+                play_song(tracks[track_index]['track']['uri'])
+            elif pause_button_rect.collidepoint(event.pos):
+                pause_song()
+            elif skip_button_rect.collidepoint(event.pos):
+                track_index = (track_index + 1) % len(tracks)
+                play_song(tracks[track_index]['track']['uri'])
+            elif prev_button_rect.collidepoint(event.pos):
+                track_index = (track_index - 1) % len(tracks)
+                play_song(tracks[track_index]['track']['uri'])
 
-    screen.blit(background,background_rect)
-    screen.blit(play_button,play_button_pos)
-    screen.blit(pause_button,pause_button_pos)
-    screen.blit(prev_button,prev_button_pos)
-    screen.blit(skip_button,skip_button_pos)
+        # Display the current track
+        track_name = tracks[track_index]['track']['name']
+        track_artist = tracks[track_index]['track']['artists'][0]['name']
+        text = font.render(f"{track_name} by {track_artist}", True, (255, 255, 255))
+        screen.blit(text, (50, 50))
 
-    pygame.display.flip()
+        screen.blit(background,background_rect)
+        screen.blit(play_button, play_button_rect.topleft)
+        screen.blit(pause_button, pause_button_rect.topleft)
+        screen.blit(prev_button, prev_button_rect.topleft)
+        screen.blit(skip_button, skip_button_rect.topleft)
+
+        pygame.display.flip()
