@@ -34,6 +34,7 @@ pygame.display.set_caption("Holofy Music Player")
 
 # Load font
 font = pygame.font.Font(None, 36)
+white =  (255, 255, 255)
 
 # Load images
 background_img = pygame.image.load('holomat/resources/spotify/banner.png')
@@ -170,13 +171,17 @@ while running:
         # Display the current track
         track_name = tracks[track_index]['track']['name']
         track_artist = tracks[track_index]['track']['artists'][0]['name']
-        text = font.render(f"{track_name} by {track_artist}", True, (255, 255, 255))
-        screen.blit(text, (50, 50))
+        track_title = font.render(f"{track_name} by {track_artist}", True, white)
+
+        track_title_rect = track_title.get_rect()
+        track_title_rect.centerx = screen.get_rect().centerx
+        track_title_rect.bottom = button_pos_y - 100
 
         screen.blit(background,background_rect)
-        screen.blit(play_button, play_button_rect.topleft)
-        screen.blit(pause_button, pause_button_rect.topleft)
-        screen.blit(prev_button, prev_button_rect.topleft)
-        screen.blit(skip_button, skip_button_rect.topleft)
+        screen.blit(track_title, track_title_rect)
+        screen.blit(play_button, play_button_rect)
+        screen.blit(pause_button, pause_button_rect)
+        screen.blit(prev_button, prev_button_rect)
+        screen.blit(skip_button, skip_button_rect)
 
         pygame.display.flip()
